@@ -41,7 +41,6 @@ if (helper) {
   scene.add(gridHelper);
 }
 
-
 // GLTFLoader for loading Blender assets
 const loader = new GLTFLoader();
 let loadedModel
@@ -59,7 +58,6 @@ loader.load(
   }
 );
 
-
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
@@ -73,21 +71,21 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-animate();
-
-// Store the initial camera position
-const initialPosition = {
-  x: camera.position.x,
-  z: camera.position.z,
-};
+let t = document.body.getBoundingClientRect().top;
+let previous_t = t;
 
 function moveCamera() {
-  const t = document.body.getBoundingClientRect().top;
+  t = document.body.getBoundingClientRect().top;
+  const delta = t - previous_t;
 
-  // Set new camera position based on the scroll delta from the initial position
-  camera.position.z = initialPosition.z + t * -0.01; // Move in the z-axis based on scroll
-  camera.position.x = initialPosition.x + t * -0.005; // Move in the x-axis based on scroll
+  camera.position.z += delta * -0.01; 
+  camera.position.x += delta * -0.0005;
+
+  camera.lookAt(0, 0, 0);
+
+  previous_t = t;
 }
+animate();
 
 document.body.onscroll = moveCamera;
 moveCamera();

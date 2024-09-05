@@ -1,5 +1,6 @@
 :root {
-  --black: #1a1a1a;
+  /* --black: #1a1a1a; */
+  --black: #000000;
   --beige: #f5e6d3;
   --accent: #ff6b6b;
 }
