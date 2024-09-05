@@ -1,0 +1,7 @@
+
+
+const boxGeometry = new THREE.BoxGeometry(6, 6, 6); // 1x1x1 cube
+const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color
+loadedModel = new THREE.Mesh(boxGeometry, boxMaterial);
+loadedModel.position.set(0, 0, 0);
+scene.add(loadedModel);

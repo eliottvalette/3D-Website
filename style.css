@@ -1,64 +1,74 @@
+:root {
+  --black: #1a1a1a;
+  --beige: #f5e6d3;
+  --accent: #ff6b6b;
+}
+
 body {
+  font-family: 'Arial', sans-serif;
+  background-color: var(--black);
+  color: var(--beige);
   margin: 0;
-  font-family: Arial, sans-serif;
-  color: white;
-  background-color: black;
-  cursor: default;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 header, footer {
+  background-color: var(--beige);
+  color: var(--black);
   text-align: center;
-  padding: 100px 20px;
-}
-
-header {
-  background-color: #282c34;
-}
-
-footer {
-  background-color: #111;
-  padding: 100px 20px;
-}
-
-.three-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-
-canvas {
-  display: block;
-  position: relative;
-  top: 0;
-  left: 0;
-  cursor: crosshair;
-}
-
-
-
-main {
-  padding: 0;
-}
-
-section.content {
-  padding: 100px 20px;
-  background-color: #333;
-  color: white;
+  padding: 2rem 0;
 }
 
 h1, h2 {
   margin: 0;
+  text-transform: uppercase;
 }
 
-p {
-  margin: 20px 0;
+
+.three-container {
+  display: flex;
+  justify-content: center; /* Horizontally centers the canvas */
+  align-items: center; /* Vertically centers the canvas */
+  height: 50vh;
+  position: relative;
 }
 
-/* Ensure footer is centered */
-footer h2 {
-  margin-bottom: 20px;
+canvas {
+  max-width: 100%;
+  position: relative;
+}
+
+.content {
+  background-color: rgba(26, 26, 26, 0.8);
+  padding: 2rem;
+  margin: 2rem 0;
+  border-radius: 10px;
+  border: 2px solid var(--beige);
+}
+
+.highlight {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+button {
+  background-color: var(--beige);
+  color: var(--black);
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--accent);
+  color: var(--beige);
 }

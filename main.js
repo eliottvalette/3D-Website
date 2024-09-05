@@ -5,16 +5,18 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'; // Import GL
 // Setup
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(75, (window.innerWidth * 0.4) / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, (window.innerWidth) / (window.innerHeight / 2), 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),
 });
 
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth * 0.4, window.innerHeight);
-camera.position.setZ(50);
-camera.position.setX(-3);
+renderer.setSize(window.innerWidth, window.innerHeight / 2);
+
+// Initial camera position
+camera.position.set(0, 5, 5);
+camera.lookAt(0, 0, 0);  // Look at the origin
 
 // Instantiate OrbitControls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -45,7 +47,7 @@ const loader = new GLTFLoader();
 let loadedModel
 
 loader.load(
-  'blenders/viking_hut.glb',
+  'blenders/commodore_64__computer_full_pack.glb',
   function (gltf) {
     loadedModel = gltf.scene;  // Assign loaded model to the variable
     loadedModel.position.set(0,0.1,0)
@@ -64,7 +66,7 @@ function animate() {
 
   // Rotate the loaded model if it exists
   if (loadedModel) {
-    loadedModel.rotation.y += 0.00;
+    loadedModel.rotation.y += 0.0001;
   }
 
   controls.update(); // Update controls for smooth interaction
@@ -73,11 +75,18 @@ function animate() {
 
 animate();
 
-// Scroll Animation
+// Store the initial camera position
+const initialPosition = {
+  x: camera.position.x,
+  z: camera.position.z,
+};
+
 function moveCamera() {
   const t = document.body.getBoundingClientRect().top;
-  camera.position.z = t * -0.01 + 30; // Adjust z position based on scroll
-  camera.rotation.y = t * -0.0002;
+
+  // Set new camera position based on the scroll delta from the initial position
+  camera.position.z = initialPosition.z + t * -0.01; // Move in the z-axis based on scroll
+  camera.position.x = initialPosition.x + t * -0.005; // Move in the x-axis based on scroll
 }
 
 document.body.onscroll = moveCamera;
