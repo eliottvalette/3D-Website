@@ -100,13 +100,14 @@ const cameraPathSegment3 = new THREE.CatmullRomCurve3([
   new THREE.Vector3(7, 5, 7),   
   new THREE.Vector3(0, 5, 7),   
 
-  new THREE.Vector3(-3, 3, 3),
+  new THREE.Vector3(-3, 3, 4),
 ], false);
 
 // Segment 4: Tracking the keyboard
 const cameraPathSegment4 = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(-3, 3, 3),  
-  new THREE.Vector3(3, 3, 3),   
+  new THREE.Vector3(-3, 3, 4), 
+  new THREE.Vector3(3, 3, 4), 
+  new THREE.Vector3(3, 3, 4),  
   new THREE.Vector3(0, 5, 7),   
 ], false);
 
@@ -133,14 +134,31 @@ const lookAtSegment2 = new THREE.CatmullRomCurve3([
 const lookAtSegment3 = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 2.5, 0),     
 
-  new THREE.Vector3(0, 0.9, 3),    
+  new THREE.Vector3(-3, 0.9, 3),    
 ], false);
 
 // Segment 4: Looking at the keyboard
 const lookAtSegment4 = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(0, 0.9, 3),     
+  new THREE.Vector3(-3, 0.9, 3), 
+  new THREE.Vector3(3, 0.9, 3),    
   new THREE.Vector3(0, 2.5, 0),  
 ], false)
+
+// Concatenate all camera path segments
+const cameraPath = new THREE.CatmullRomCurve3([
+  ...cameraPathSegment1.getPoints(100),  // Segment 1
+  ...cameraPathSegment2.getPoints(100),  // Segment 2
+  ...cameraPathSegment3.getPoints(100),  // Segment 3
+  ...cameraPathSegment4.getPoints(100),  // Segment 4
+], false);
+
+// Concatenate all lookAt path segments
+const lookAtPath = new THREE.CatmullRomCurve3([
+  ...lookAtSegment1.getPoints(100),  // Segment 1
+  ...lookAtSegment2.getPoints(100),  // Segment 2
+  ...lookAtSegment3.getPoints(100),  // Segment 3
+  ...lookAtSegment4.getPoints(100),  // Segment 4
+], false);
 
 // Progress Bar and Scroll Event
 let progress_bar = 0;
@@ -154,20 +172,20 @@ function toggleAnimation() {
 function updateCameraPosition() {
   let cameraPosition, lookAtTarget;
 
-  if (progress_bar < 0.25) {  // First segment (screen)
-    const t = progress_bar / 0.25;  // Normalize progress to this segment's range
+  if (progress_bar < 0.1) {  // First segment (screen)
+    const t = progress_bar / 0.1;  // Normalize progress to this segment's range
     cameraPosition = cameraPathSegment1.getPointAt(t);
     lookAtTarget = lookAtSegment1.getPointAt(t);
-  } else if (progress_bar < 0.5) {  // Second segment (modem)
-    const t = (progress_bar - 0.25) / 0.25;
+  } else if (progress_bar < 0.6) {  // Second segment (modem)
+    const t = (progress_bar - 0.1) / 0.5;
     cameraPosition = cameraPathSegment2.getPointAt(t);
     lookAtTarget = lookAtSegment2.getPointAt(t);
-  } else if (progress_bar < 0.75) {  // Third segment (turning around the screen)
-    const t = (progress_bar - 0.5) / 0.25;
+  } else if (progress_bar < 0.8) {  // Third segment (turning around the screen)
+    const t = (progress_bar - 0.6) / 0.2;
     cameraPosition = cameraPathSegment3.getPointAt(t);
     lookAtTarget = lookAtSegment3.getPointAt(t);
   } else {  // Fourth segment (keyboard)
-    const t = (progress_bar - 0.75) / 0.25;
+    const t = (progress_bar - 0.8) / 0.2;
     cameraPosition = cameraPathSegment4.getPointAt(t);
     lookAtTarget = lookAtSegment4.getPointAt(t);
   }
@@ -212,7 +230,7 @@ const canvas = document.querySelector('#bg');
 canvas.addEventListener('wheel', fill_bar);
 
 // Helpers
-let helper = true
+let helper = false
 if (helper) {
   const lightHelper = new THREE.PointLightHelper(pointLight);
   scene.add(lightHelper);
@@ -225,23 +243,17 @@ if (helper) {
 
   // Helpers for each segment of cameraPath
 
-  // Helper for cameraPathSegment1
-  const pathHelperSegment1 = new THREE.TubeGeometry(cameraPathSegment1, 100, 0.05, 8, true);
-  const materialSegment1 = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
-  const pathMeshSegment1 = new THREE.Mesh(pathHelperSegment1, materialSegment1);
-  scene.add(pathMeshSegment1);
+  // Helper for cameraPath
+  const pathHelper = new THREE.TubeGeometry(cameraPath, 100, 0.05, 8, true);
+  const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
+  const pathMesh = new THREE.Mesh(pathHelper, material);
+  scene.add(pathMesh);
 
-  // Helper for cameraPathSegment2
-  const pathHelperSegment2 = new THREE.TubeGeometry(cameraPathSegment2, 100, 0.05, 8, true);
-  const materialSegment2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
-  const pathMeshSegment2 = new THREE.Mesh(pathHelperSegment2, materialSegment2);
-  scene.add(pathMeshSegment2);
-
-  // Helper for cameraPathSegment3
-  const pathHelperSegment3 = new THREE.TubeGeometry(cameraPathSegment3, 100, 0.05, 8, true);
-  const materialSegment3 = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
-  const pathMeshSegment3 = new THREE.Mesh(pathHelperSegment3, materialSegment3);
-  scene.add(pathMeshSegment3);
+  // Helper for LookPath
+  const lookPathHelper = new THREE.TubeGeometry(lookAtPath, 100, 0.05, 8, true);
+  const lookMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+  const lookPathMesh = new THREE.Mesh(lookPathHelper, lookMaterial);
+  scene.add(lookPathMesh);
 
   scene.add(box_screen);
   scene.add(box_side);
