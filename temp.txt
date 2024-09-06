@@ -5,3 +5,15 @@ const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green c
 loadedModel = new THREE.Mesh(boxGeometry, boxMaterial);
 loadedModel.position.set(0, 0, 0);
 scene.add(loadedModel);
+
+
+// Define a separate smooth path for camera's lookAt direction (target positions)
+const lookAtPath = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 2.5, 0),   // Initially look at the center of the setup
+  new THREE.Vector3(-4, 0.9, 0),  // Look at the modem (side)
+  new THREE.Vector3(-4, 0.9, -3), // Look towards the back-left
+  new THREE.Vector3(0, 2.5, -5),  // Look directly behind
+  new THREE.Vector3(4, 0.9, -3),  // Look towards the back-right
+  new THREE.Vector3(4, 0.9, 0),   // Look at the front-right side
+  new THREE.Vector3(0, 2.5, 0)    // Back to the center
+], true);
