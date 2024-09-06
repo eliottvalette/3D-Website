@@ -37,7 +37,7 @@ h1, h2 {
   display: flex;
   justify-content: center; /* Horizontally centers the canvas */
   align-items: center; /* Vertically centers the canvas */
-  height: 75vh;
+  height: 100vh;
   position: relative;
 }
 
@@ -76,6 +76,7 @@ button:hover {
 }
 
 #animateButton {
+  display: none;
   position: absolute;
   bottom: 10px; /* Positions the button near the bottom of the container */
   left: 50%; /* Centers the button horizontally */
@@ -91,6 +92,7 @@ button:hover {
 }
 
 #animateButton:hover {
+  display: none;
   background-color: var(--accent); /* Changes color on hover */
   color: var(--beige);
 }
