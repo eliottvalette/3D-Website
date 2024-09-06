@@ -75,52 +75,72 @@ const boxMaterial_keyboard = new THREE.MeshBasicMaterial({ color: 0x0000ff }); /
 const box_keyboard = new THREE.Mesh(boxGeometry_keyboard, boxMaterial_keyboard);
 box_keyboard.position.set(0, 0.9, 3);
 
-// Create a smooth camera path using CatmullRomCurve3
-const cameraPath = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(0, 5, 7),   // In front of the screen (1)
+// Segment 1: Focus on the screen
+const cameraPathSegment1 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 5, 7),    // In front of the screen
 
+  new THREE.Vector3(-8, 4, 7),   
+], false);
+
+// Segment 2: Turning around the modem
+const cameraPathSegment2 = new THREE.CatmullRomCurve3([
   new THREE.Vector3(-8, 4, 7),  // Turning around the modem (6)
   new THREE.Vector3(-8, 4, -7),   
   new THREE.Vector3(-2.5, 6, -5),    
   new THREE.Vector3(-2.5, 6, 5),     
   new THREE.Vector3(-8, 4, 7),    
-  new THREE.Vector3(-8, 3, -7),   
+  new THREE.Vector3(-8, 3, -7),  
 
-  new THREE.Vector3(7, 4, -7),  // Behind the screen (1)
+  new THREE.Vector3(7, 4, -7),
+], false);
 
-  new THREE.Vector3(7, 5, 7),   // On the Right (1)
+// Segment 3: turning around the screen
+const cameraPathSegment3 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(7, 4, -7), 
+  new THREE.Vector3(7, 5, 7),   
+  new THREE.Vector3(0, 5, 7),   
 
-  new THREE.Vector3(0, 5, 7),   // In front of the screen (1)
+  new THREE.Vector3(-3, 3, 3),
+], false);
 
-  new THREE.Vector3(-3, 3, 3),  // Tracking the keyboard (2)
+// Segment 4: Tracking the keyboard
+const cameraPathSegment4 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-3, 3, 3),  
   new THREE.Vector3(3, 3, 3),   
+  new THREE.Vector3(0, 5, 7),   
+], false);
 
-  new THREE.Vector3(0, 5, 7),   // In front of the screen (1)
-], true); // The last true ensures the curve is closed
 
-// Define a separate smooth path for camera's lookAt direction (target positions)
-const LookPath = new THREE.CatmullRomCurve3([
+// Segment 1: Looking at the screen
+const lookAtSegment1 = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 2.5, 0),     // Screen (1)
+  new THREE.Vector3(-4.5, 0.9, -1), 
+], false);
 
-  new THREE.Vector3(-4.5, 0.9, -1), // Modem (6)  
-  new THREE.Vector3(-4.5, 0.9, -1),       
+// Segment 2: Looking at the modem
+const lookAtSegment2 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-4.5, 0.9, -1), // Modem (6)
   new THREE.Vector3(-4.5, 0.9, -1),  
-  new THREE.Vector3(-4.5, 0.9, -1),         
-  new THREE.Vector3(-4.5, 0.9, -1),           
   new THREE.Vector3(-4.5, 0.9, -1),  
-         
-  new THREE.Vector3(0, 2.5, 0),     // Screen (1)
+  new THREE.Vector3(-4.5, 0.9, -1),   
+  new THREE.Vector3(-4.5, 0.9, -1),   
+  new THREE.Vector3(-4.5, 0.9, -1), 
 
-  new THREE.Vector3(0, 2.5, 0),     // Screen (1)
+  new THREE.Vector3(0, 2.5, 0),    
+], false);
 
-  new THREE.Vector3(0, 2.5, 0),     // Screen (1)
+// Segment 3: Back to the screen
+const lookAtSegment3 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 2.5, 0),     
 
-  new THREE.Vector3(0, 0.9, 3),     // Keyboard (2)
-  new THREE.Vector3(0, 0.9, 3),
+  new THREE.Vector3(0, 0.9, 3),    
+], false);
 
-  new THREE.Vector3(0, 2.5, 0),     // Screen (1)
-
-], true);
+// Segment 4: Looking at the keyboard
+const lookAtSegment4 = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 0.9, 3),     
+  new THREE.Vector3(0, 2.5, 0),  
+], false)
 
 // Progress Bar and Scroll Event
 let progress_bar = 0;
@@ -130,40 +150,62 @@ function toggleAnimation() {
   isAnimating = !isAnimating;
 }
 
-// Scroll event function
-function fill_bar(event) {
-  // Adjust progress bar based on scroll direction
-  if (event.deltaY > 0) {
-    progress_bar = Math.min(progress_bar + 0.002, 1);
-  } else {
-    progress_bar = Math.max(progress_bar - 0.002, 0);
+
+function updateCameraPosition() {
+  let cameraPosition, lookAtTarget;
+
+  if (progress_bar < 0.25) {  // First segment (screen)
+    const t = progress_bar / 0.25;  // Normalize progress to this segment's range
+    cameraPosition = cameraPathSegment1.getPointAt(t);
+    lookAtTarget = lookAtSegment1.getPointAt(t);
+  } else if (progress_bar < 0.5) {  // Second segment (modem)
+    const t = (progress_bar - 0.25) / 0.25;
+    cameraPosition = cameraPathSegment2.getPointAt(t);
+    lookAtTarget = lookAtSegment2.getPointAt(t);
+  } else if (progress_bar < 0.75) {  // Third segment (turning around the screen)
+    const t = (progress_bar - 0.5) / 0.25;
+    cameraPosition = cameraPathSegment3.getPointAt(t);
+    lookAtTarget = lookAtSegment3.getPointAt(t);
+  } else {  // Fourth segment (keyboard)
+    const t = (progress_bar - 0.75) / 0.25;
+    cameraPosition = cameraPathSegment4.getPointAt(t);
+    lookAtTarget = lookAtSegment4.getPointAt(t);
   }
 
-  isAnimating = false;  // Stop animation if the user scrolls
+  // Set the camera position and where it looks
+  camera.position.copy(cameraPosition);
+  controls.target.copy(lookAtTarget);
+  controls.update();
+}
+
+
+function fill_bar(event) {
+  const increment = 0.002;
+  
+  if (event.deltaY > 0) {
+    progress_bar = Math.min(progress_bar + increment, 1);
+  } else {
+    progress_bar = Math.max(progress_bar - increment, 0);
+  }
+
+  isAnimating = false; // Stop animation on scroll
   updateCameraPosition();
 }
 
-// Function for handling both scrolling and animation
 function handleCameraMovement() {
   if (isAnimating) {
-    progress_bar = Math.min(progress_bar + 0.002, 1);  // Smoothly move the camera during animation
+    const increment = 0.002;
+    progress_bar = Math.min(progress_bar + increment, 1);
+    
     if (progress_bar === 1) {
-      isAnimating = false;  // Stop animation when it completes the path
+      isAnimating = false; // Stop animation when complete
     }
+
     updateCameraPosition();
   }
 }
 
 
-function updateCameraPosition() {
-  // Get camera position and lookAt target from the path curve based on progress_bar
-  const cameraPosition = cameraPath.getPointAt(progress_bar);
-  camera.position.copy(cameraPosition);
-
-  const lookAtTarget = LookPath.getPointAt(progress_bar);
-  controls.target.copy(lookAtTarget);
-  controls.update();
-}
 
 // Add scroll event listener to the canvas
 const canvas = document.querySelector('#bg');
@@ -181,15 +223,25 @@ if (helper) {
   const axesHelper = new THREE.AxesHelper(5);  // 5 units long axes
   scene.add(axesHelper);
 
-  const pathHelper = new THREE.TubeGeometry(cameraPath, 200, 0.05, 8, true);
-  const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
-  const pathMesh = new THREE.Mesh(pathHelper, material);
-  scene.add(pathMesh);
+  // Helpers for each segment of cameraPath
 
-  const lookPathHelper = new THREE.TubeGeometry(LookPath, 200, 0.05, 8, true);
-  const lookMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-  const lookPathMesh = new THREE.Mesh(lookPathHelper, lookMaterial);
-  scene.add(lookPathMesh);
+  // Helper for cameraPathSegment1
+  const pathHelperSegment1 = new THREE.TubeGeometry(cameraPathSegment1, 100, 0.05, 8, true);
+  const materialSegment1 = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
+  const pathMeshSegment1 = new THREE.Mesh(pathHelperSegment1, materialSegment1);
+  scene.add(pathMeshSegment1);
+
+  // Helper for cameraPathSegment2
+  const pathHelperSegment2 = new THREE.TubeGeometry(cameraPathSegment2, 100, 0.05, 8, true);
+  const materialSegment2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+  const pathMeshSegment2 = new THREE.Mesh(pathHelperSegment2, materialSegment2);
+  scene.add(pathMeshSegment2);
+
+  // Helper for cameraPathSegment3
+  const pathHelperSegment3 = new THREE.TubeGeometry(cameraPathSegment3, 100, 0.05, 8, true);
+  const materialSegment3 = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
+  const pathMeshSegment3 = new THREE.Mesh(pathHelperSegment3, materialSegment3);
+  scene.add(pathMeshSegment3);
 
   scene.add(box_screen);
   scene.add(box_side);
