@@ -73,3 +73,23 @@ button:hover {
   background-color: var(--accent);
   color: var(--beige);
 }
+
+#animateButton {
+  position: absolute;
+  bottom: 10px; /* Positions the button near the bottom of the container */
+  left: 50%; /* Centers the button horizontally */
+  transform: translateX(-50%); /* Ensures the button is fully centered */
+  background-color: var(--beige); /* Matches the site's color scheme */
+  color: var(--black);
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 1; /* Ensures the button is above the canvas */
+}
+
+#animateButton:hover {
+  background-color: var(--accent); /* Changes color on hover */
+  color: var(--beige);
+}
