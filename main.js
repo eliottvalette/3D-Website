@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { cameraPathSegment1, cameraPathSegment2, cameraPathSegment3, cameraPathSegment4 , cameraPath} from './cameraPaths.js';
-import { lookAtSegment1, lookAtSegment2, lookAtSegment3, lookAtSegment4 } from './lookAtPaths.js';
+import { lookAtSegment1, lookAtSegment2, lookAtSegment3, lookAtSegment4 , lookAtPath} from './lookAtPaths.js';
 import { setupLighting } from './lighting.js';
 import { setupHelpers } from './helpers.js'; // Import the helper setup function
 
@@ -53,7 +53,9 @@ let isreverse = false
 
 function toggleAnimation() {
   isAnimating = !isAnimating;
+  animateButton.textContent = isAnimating ? 'Pause Animation' : 'Start Animation';
 }
+  
 
 function updateCameraPosition() {
     let cameraPosition, lookAtTarget;
@@ -111,9 +113,11 @@ function handleCameraMovement() {
     if (progress_bar === 1) {
       isreverse = true; 
       isAnimating = false
+      animateButton.textContent = 'Reverse the Animation';
     } else if (progress_bar === 0) {
       isreverse = false; 
       isAnimating = false
+      animateButton.textContent = 'Start the Animation';
     }
     updateCameraPosition();
   }
