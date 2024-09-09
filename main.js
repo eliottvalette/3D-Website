@@ -1,99 +1,31 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { AnimationMixer, Clock } from 'three';
+let currentFrame = 0;
+const totalFrames = 160;  // Total number of PNG frames
+const frames = [];
 
-let scene, camera, renderer, mixer, clock;
-let cameraAnimation;
-
-init();
-animate();
-
-function init() {
-  // Set up basic scene
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg') });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Adjust intensity as needed
-  scene.add(ambientLight);
-
-  clock = new Clock();
-
-  // Load the GLTF model (including camera animation)
-  const loader = new GLTFLoader();
-  loader.load('blenders/desk1_baked.glb', function(gltf) {
-    console.log('model loaded');
-    console.log(gltf);  // Log the entire glTF structure to inspect
-
-    scene.add(gltf.scene);  // Add the loaded scene
-
-    // Log the cameras and animations
-    console.log('Cameras:', gltf.cameras);
-    console.log('Animations:', gltf.animations);
-
-    // Check if the model has animations
-    if (gltf.animations.length > 0) {
-        cameraAnimation = gltf.animations[0];  // Assuming the first animation is the camera animation
-        console.log('camera animation imported');
-    } else {
-        console.log('No animations found');
-    }
-
-    // Check if the model has a camera
-    if (gltf.cameras && gltf.cameras.length > 0) {
-        const importedCamera = gltf.cameras[0];
-        camera = importedCamera;
-        console.log('camera imported');
-    } else {
-        console.log('No cameras found');
-    }
-
-    // Initialize AnimationMixer for the camera
-    mixer = new AnimationMixer(gltf.scene);
-
-    // Show the animation button if animation exists
-    if (cameraAnimation) {
-      const animateButton = document.getElementById('animateButton');
-      animateButton.style.display = 'block';
-
-      // Trigger the animation when the button is clicked
-      animateButton.addEventListener('click', function() {
-          console.log(camera); // Make sure the camera is the one imported from Blender
-          if (cameraAnimation) {
-            const action = mixer.clipAction(cameraAnimation);
-            action.reset();
-            action.play();
-            console.log('Camera animation started'); // For debugging
-          } else {
-            console.log('No camera animation available');
-          }
-      });
-    }
-  });
-
-  console.log(camera.position);
+// Preload images
+for (let i = 1; i <= totalFrames; i++) {
+  const img = new Image();
+  img.src = `Outputs/${String(i).padStart(4, '0')}.png`;
+  frames.push(img);
 }
 
-function animate() {
-    requestAnimationFrame(animate);
-  
-    const delta = clock.getDelta();  // Time between frames
-  
-    // Update the animation mixer if it exists
-    if (mixer) {
-      mixer.update(delta);  // Updates the camera animation over time
-    }
-  
-    // Render the scene with the animated camera
-    renderer.render(scene, camera);
+// Set up scroll-based animation
+const scrollContainer = document.querySelector('.scroll-container');
+const animationContainer = document.getElementById('animation-container');
+
+function displayFrameByScroll(scrollProgress) {
+  currentFrame = Math.min(Math.floor(scrollProgress * totalFrames), totalFrames - 1);
+  animationContainer.innerHTML = '';  // Clear the previous frame
+  animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
 }
 
-window.addEventListener('resize', onWindowResize);
+// Listen to scroll event
+window.addEventListener('scroll', () => {
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const totalScrollHeight = window.innerHeight * 2;  // Adjust this based on desired scroll area
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+  if (containerRect.top <= 0 && containerRect.bottom >= window.innerHeight) {
+    const scrollProgress = Math.abs(containerRect.top) / totalScrollHeight;
+    displayFrameByScroll(scrollProgress);
+  }
+});
