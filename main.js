@@ -1,166 +1,99 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { cameraPathSegment1, cameraPathSegment2, cameraPathSegment3, cameraPathSegment4 } from './cameraPaths.js';
-import { lookAtSegment1, lookAtSegment2, lookAtSegment3, lookAtSegment4 } from './lookAtPaths.js';
-import { setupLighting } from './lighting.js';
-import { setupHelpers } from './helpers.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { AnimationMixer, Clock } from 'three';
 
-// Setup scene
-const scene = new THREE.Scene();
+let scene, camera, renderer, mixer, clock;
+let cameraAnimation;
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 5, 7);
+init();
+animate();
 
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector('#bg'),
-});
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+function init() {
+  // Set up basic scene
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg') });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-// Orbit controls setup
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.enableZoom = false;       
-controls.enableRotate = false; 
-controls.target.set(0, 2.5, 0);
-controls.update();
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Adjust intensity as needed
+  scene.add(ambientLight);
 
-// Setup lighting
-const { ambientLight, pointLight, directionalLight, spotLight } = setupLighting(scene);
+  clock = new Clock();
 
-// Load the GLTF model
-const loader = new GLTFLoader();
-let loadedModel;
+  // Load the GLTF model (including camera animation)
+  const loader = new GLTFLoader();
+  loader.load('blenders/desk1_baked.glb', function(gltf) {
+    console.log('model loaded');
+    console.log(gltf);  // Log the entire glTF structure to inspect
 
-loader.load(
-  'blenders/commodore_low_res.glb',
-  function (gltf) {
-    loadedModel = gltf.scene;
-    loadedModel.position.set(0, 0.1, 0);
-    scene.add(loadedModel);
-  },
-  undefined,
-  function (error) {
-    console.error('An error happened', error);
-  }
-);
+    scene.add(gltf.scene);  // Add the loaded scene
 
-// Progress Bar and Scroll Event
-let progress_bar = 0;
-let isIn3DSection = false;
-let hasAnimationPlayed = false;
-let scrollLock = false;
+    // Log the cameras and animations
+    console.log('Cameras:', gltf.cameras);
+    console.log('Animations:', gltf.animations);
 
-const threeContainer = document.querySelector('.three-container');
-const animateButton = document.getElementById('animateButton');
-
-// Observe when the 3D section comes into view
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting && !hasAnimationPlayed) {
-      isIn3DSection = true;
-      scrollLock = true; // Lock scrolling within the 3D section
+    // Check if the model has animations
+    if (gltf.animations.length > 0) {
+        cameraAnimation = gltf.animations[0];  // Assuming the first animation is the camera animation
+        console.log('camera animation imported');
     } else {
-      isIn3DSection = false;
-      scrollLock = false; // Unlock scrolling when leaving the section
+        console.log('No animations found');
+    }
+
+    // Check if the model has a camera
+    if (gltf.cameras && gltf.cameras.length > 0) {
+        const importedCamera = gltf.cameras[0];
+        camera = importedCamera;
+        console.log('camera imported');
+    } else {
+        console.log('No cameras found');
+    }
+
+    // Initialize AnimationMixer for the camera
+    mixer = new AnimationMixer(gltf.scene);
+
+    // Show the animation button if animation exists
+    if (cameraAnimation) {
+      const animateButton = document.getElementById('animateButton');
+      animateButton.style.display = 'block';
+
+      // Trigger the animation when the button is clicked
+      animateButton.addEventListener('click', function() {
+          console.log(camera); // Make sure the camera is the one imported from Blender
+          if (cameraAnimation) {
+            const action = mixer.clipAction(cameraAnimation);
+            action.reset();
+            action.play();
+            console.log('Camera animation started'); // For debugging
+          } else {
+            console.log('No camera animation available');
+          }
+      });
     }
   });
-}, {
-  threshold: 0.9 // Trigger when 90% of the section is visible
-});
 
-observer.observe(threeContainer);
-
-function updateCameraPosition() {
-  let cameraPosition, lookAtTarget;
-
-  if (progress_bar < 0.1) {
-    const t = progress_bar / 0.1;
-    cameraPosition = cameraPathSegment1.getPointAt(t);
-    lookAtTarget = lookAtSegment1.getPointAt(t);
-  } else if (progress_bar < 0.6) {
-    const t = (progress_bar - 0.1) / 0.5;
-    cameraPosition = cameraPathSegment2.getPointAt(t);
-    lookAtTarget = lookAtSegment2.getPointAt(t);
-  } else if (progress_bar < 0.8) {
-    const t = (progress_bar - 0.6) / 0.2;
-    cameraPosition = cameraPathSegment3.getPointAt(t);
-    lookAtTarget = lookAtSegment3.getPointAt(t);
-  } else {
-    const t = (progress_bar - 0.8) / 0.2;
-    cameraPosition = cameraPathSegment4.getPointAt(t);
-    lookAtTarget = lookAtSegment4.getPointAt(t);
-  }
-
-  // Update camera and controls
-  camera.position.copy(cameraPosition);
-  controls.target.copy(lookAtTarget);
-  controls.update();
+  console.log(camera.position);
 }
 
-function fill_bar() {
-  if (!isIn3DSection || hasAnimationPlayed) {
-    return; // Do nothing if the user is not in the 3D section or the animation has completed
-  }
-
-  // Calculate scroll progress only within the 3D section
-  const scrollTop = window.scrollY;
-
-  const containerStart = threeContainer.offsetTop;
-  const containerEnd = containerStart + threeContainer.offsetHeight;
-
-  // Mark animation as played when progress reaches 1
-  if (progress_bar >= 1) {
-    hasAnimationPlayed = true;
-    scrollLock = false; // Allow the user to continue scrolling normally after animation
-  }
-}
-
-// Handle scrolling within the 3D section to control animation
-window.addEventListener('wheel', function (e) {
-  if (scrollLock) {
-    e.preventDefault();
-
-    // Adjust scroll sensitivity based on scroll speed (deltaY)
-    const scrollSpeed = Math.abs(e.deltaY);
-    const scrollStep = (scrollSpeed / 1000) * 0.1;  // Adjust this to tune sensitivity
-
-    // Update the progress_bar to reverse animation on scroll up or progress forward on scroll down
-    if (e.deltaY > 0 && progress_bar < 1) {
-      progress_bar = Math.min(1, progress_bar + scrollStep);  // Scroll forward
-    } else if (e.deltaY < 0 && progress_bar > 0) {
-      progress_bar = Math.max(0, progress_bar - scrollStep);  // Scroll reverse
-    }
-
-    updateCameraPosition();
-
-    // Allow normal scrolling if the animation reaches either end (0 or 1)
-    if (progress_bar === 1 || progress_bar === 0) {
-      scrollLock = false;  // Unlock scrolling beyond the 3D section when animation completes
-    }
-  }
-}, { passive: false });
-
-document.addEventListener('scroll', fill_bar);
-
-// Animation loop
 function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-
-  if (!isIn3DSection && hasAnimationPlayed){
-    hasAnimationPlayed = false;
-  }
-  console.log('hasAnimationPlayed', hasAnimationPlayed)
-  console.log('progress_bar', progress_bar)
+    requestAnimationFrame(animate);
+  
+    const delta = clock.getDelta();  // Time between frames
+  
+    // Update the animation mixer if it exists
+    if (mixer) {
+      mixer.update(delta);  // Updates the camera animation over time
+    }
+  
+    // Render the scene with the animated camera
+    renderer.render(scene, camera);
 }
 
-// Attach event listener to the button
-animateButton.addEventListener('click', function () {
-  animateButton.textContent = isAnimating ? 'Pause Animation' : 'Start Animation';
-});
+window.addEventListener('resize', onWindowResize);
 
-
-animate();
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
