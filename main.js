@@ -1,9 +1,9 @@
-let currentFrame = 0;
+let startFrame = 40;
 const totalFrames = 160;  // Total number of PNG frames
 const frames = [];
 
 // Preload images
-for (let i = 1; i <= totalFrames; i++) {
+for (let i = startFrame; i <= totalFrames; i++) {
   const img = new Image();
   img.src = `Outputs/${String(i).padStart(4, '0')}.png`;
   frames.push(img);
@@ -13,25 +13,50 @@ for (let i = 1; i <= totalFrames; i++) {
 const scrollContainer = document.querySelector('.scroll-container');
 const animationContainer = document.getElementById('animation-container');
 
-function displayFrameByScroll(scrollProgress) { // This function calculates which frame to display based on how far the user has scrolled while is a number betwenn 0 and 1
-  currentFrame = Math.min(Math.floor(scrollProgress * totalFrames), totalFrames - 1);
-  animationContainer.innerHTML = '<a href="#" id="skip-animation" class="skip-animation">Skip the Animation</a>';  // Clear the previous frame
+// Function to display frame based on scroll progress
+function displayFrameByScroll(scrollProgress) { 
+  // Calculate the current frame based on scroll progress
+  let currentFrame = Math.min(Math.floor(scrollProgress * (totalFrames - startFrame + 1)), totalFrames - startFrame);
+  
+  // Clear the previous frame and display the new one
+  animationContainer.innerHTML = ''; 
   animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
 }
+
+// DOM fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  animationContainer.appendChild(frames[0])
+  // Initially display the first frame
+  animationContainer.appendChild(frames[0]);
+
+  // Add the "Skip the Animation" button
+  const skipButton = document.createElement('a');
+  skipButton.href = '#';
+  skipButton.id = 'skip-animation';
+  skipButton.className = 'skip-animation';
+  skipButton.innerText = 'Skip the Animation';
+  animationContainer.appendChild(skipButton);
+
+  // Smooth scroll to the bottom when "Skip the Animation" is clicked
+  skipButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const totalScrollHeight = document.body.scrollHeight;
+    window.scrollTo({
+      top: totalScrollHeight,
+      behavior: 'smooth'  // Enable smooth scrolling to the bottom
+    });
+  });
 });
 
-// Listen to scroll event
+// Listen to scroll event and update animation frames
 window.addEventListener('scroll', () => {
   const containerRect = scrollContainer.getBoundingClientRect(); // Get the top and bottom coordinates
   const totalScrollHeight = scrollContainer.scrollHeight - window.innerHeight; // Dynamic calculation of the scrollable part of the animation
 
   if (containerRect.top <= 0 && containerRect.bottom >= window.innerHeight) {
     const scrollProgress = Math.abs(containerRect.top) / totalScrollHeight;
-    displayFrameByScroll(scrollProgress);
+    displayFrameByScroll(scrollProgress);  // Display the corresponding frame based on scroll position
   }
-})
+});
 
 /* 
 How it works:
@@ -40,33 +65,3 @@ How it works:
 - As the user scrolls down through the scrollContainer, the sticky-frame-container remains fixed (sticky), filling the entire screen, while the displayed frame is updated based on the user's scroll position.
 - The scrollProgress determines which frame is shown: at the top of the scroll, the first frame is shown, and at the bottom, the last frame is displayed, creating a smooth scroll-based animation.
 */
-
-document.addEventListener('DOMContentLoaded', () => {
-  const skipButton = document.getElementById('skip-animation');
-
-  // Function to smooth scroll down to the bottom of the page quickly
-  function smoothScrollToBottom() {
-    const totalScrollHeight = document.body.scrollHeight; // Full height of the page
-    window.scrollTo({
-      top: totalScrollHeight,
-      behavior: 'smooth' // Enable smooth scrolling
-    });
-  }
-  
-  // Listen for the click event on the skip button
-  skipButton.addEventListener('click', (e) => {
-    e.preventDefault(); // Prevent default link behavior
-    smoothScrollToBottom(); // Scroll to the bottom smoothly
-  });
-});
-
-// Optionally, to speed up the animation frame rate while scrolling:
-window.addEventListener('scroll', () => {
-  const containerRect = scrollContainer.getBoundingClientRect();
-  const totalScrollHeight = scrollContainer.scrollHeight - window.innerHeight;
-  
-  if (containerRect.top <= 0 && containerRect.bottom >= window.innerHeight) {
-    const scrollProgress = Math.abs(containerRect.top) / totalScrollHeight;
-    displayFrameByScroll(scrollProgress);
-  }
-});
