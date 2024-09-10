@@ -18,6 +18,9 @@ function displayFrameByScroll(scrollProgress) { // This function calculates whic
   animationContainer.innerHTML = '';  // Clear the previous frame
   animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
 }
+document.addEventListener('DOMContentLoaded', () => {
+  animationContainer.appendChild(frames[0])
+});
 
 // Listen to scroll event
 window.addEventListener('scroll', () => {

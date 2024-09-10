@@ -32,7 +32,7 @@ h1, h2 {
 }
 
 .scroll-container {
-  height: 300vh;  /* Gives enough scroll space */
+  height: 400vh;  /* If you want slower or smoother animation, increase this number */
   position: relative;
 }
 
