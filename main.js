@@ -13,7 +13,7 @@ for (let i = 1; i <= totalFrames; i++) {
 const scrollContainer = document.querySelector('.scroll-container');
 const animationContainer = document.getElementById('animation-container');
 
-function displayFrameByScroll(scrollProgress) {
+function displayFrameByScroll(scrollProgress) { // This function calculates which frame to display based on how far the user has scrolled while is a number betwenn 0 and 1
   currentFrame = Math.min(Math.floor(scrollProgress * totalFrames), totalFrames - 1);
   animationContainer.innerHTML = '';  // Clear the previous frame
   animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
@@ -21,11 +21,19 @@ function displayFrameByScroll(scrollProgress) {
 
 // Listen to scroll event
 window.addEventListener('scroll', () => {
-  const containerRect = scrollContainer.getBoundingClientRect();
-  const totalScrollHeight = window.innerHeight * 2;  // Adjust this based on desired scroll area
+  const containerRect = scrollContainer.getBoundingClientRect(); // Get the top and bottom coordinates
+  const totalScrollHeight = scrollContainer.scrollHeight - window.innerHeight; // Dynamic calculation of the scrollable part of the animation
 
   if (containerRect.top <= 0 && containerRect.bottom >= window.innerHeight) {
     const scrollProgress = Math.abs(containerRect.top) / totalScrollHeight;
     displayFrameByScroll(scrollProgress);
   }
-});
+})
+
+/* 
+How it works:
+- The scrollContainer is a long element.
+- Inside the scrollContainer, there's a sticky-frame-container, which will hold the images.
+- As the user scrolls down through the scrollContainer, the sticky-frame-container remains fixed (sticky), filling the entire screen, while the displayed frame is updated based on the user's scroll position.
+- The scrollProgress determines which frame is shown: at the top of the scroll, the first frame is shown, and at the bottom, the last frame is displayed, creating a smooth scroll-based animation.
+*/
