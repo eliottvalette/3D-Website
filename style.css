@@ -10,13 +10,14 @@ body {
   color: var(--beige);
   margin: 0;
   padding: 0;
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
+
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 40px;
 }
 
 header, footer {
@@ -83,4 +84,12 @@ h1, h2 {
   margin: 2rem 0;
   border-radius: 10px;
   border: 2
+}
+
+.intro-section,
+.highlight-section,
+.innovation-section,
+.content {
+  margin: 4rem 0; /* Increased margin for more vertical space between sections */
+  padding: 3rem;  /* Increased padding for more content space */
 }

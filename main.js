@@ -19,7 +19,7 @@ function displayFrameByScroll(scrollProgress) {
   let currentFrame = Math.min(Math.floor(scrollProgress * (totalFrames - startFrame + 1)), totalFrames - startFrame);
   
   // Clear the previous frame and display the new one
-  animationContainer.innerHTML = ''; 
+  animationContainer.innerHTML = '<a href="#" id="skip-animation" class="skip-animation">Skip the Animation</a>'; 
   animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
 }
 
@@ -27,14 +27,6 @@ function displayFrameByScroll(scrollProgress) {
 document.addEventListener('DOMContentLoaded', () => {
   // Initially display the first frame
   animationContainer.appendChild(frames[0]);
-
-  // Add the "Skip the Animation" button
-  const skipButton = document.createElement('a');
-  skipButton.href = '#';
-  skipButton.id = 'skip-animation';
-  skipButton.className = 'skip-animation';
-  skipButton.innerText = 'Skip the Animation';
-  animationContainer.appendChild(skipButton);
 
   // Smooth scroll to the bottom when "Skip the Animation" is clicked
   skipButton.addEventListener('click', (e) => {
