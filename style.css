@@ -1,95 +1,163 @@
 :root {
-  --black: #000000;
-  --beige: #f5e6d3;
-  --accent: #ff6b6b;
+  --black: #333333; /* Slightly softer than pure black */
+  --beige: #f0eae2; /* Brighter beige */
+  --lighter-beige: #f8f5f2;
+  --accent: #ff7f7f; /* Softer accent color */
+  --sky-blue: #87ceeb; /* Sky blue, used sparingly */
+  --white: #ffffff;
 }
 
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: var(--black);
-  color: var(--beige);
+  font-family: 'Helvetica Neue', 'Arial', sans-serif;
+  background-color: var(--lighter-beige); /* Lighter base for a modern feel */
+  color: var(--black);
   margin: 0;
   padding: 0;
   line-height: 1.8;
 }
 
-
 .container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 20px;
 }
 
 header, footer {
-  background-color: var(--beige);
+  background-color: var(--white); /* Fresh and bright */
   color: var(--black);
   text-align: center;
-  padding: 2rem 0;
+  padding: 3rem 0;
+  border-bottom: 2px solid var(--beige); /* Subtle separation */
+}
+
+header h1 {
+  color: var(--sky-blue); /* Sky blue for a modern, bright accent */
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+header p.subtitle {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--black); /* Contrast on bright background */
 }
 
 h1, h2 {
-  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
   text-transform: uppercase;
 }
 
+h2 {
+  color: var(--sky-blue);
+  font-weight: 400;
+}
+
 .scroll-container {
-  height: 400vh;  /* If you want slower or smoother animation, increase this number */
+  height: 300vh; /* Adjust this height based on your needs */
   position: relative;
 }
 
 .sticky-frame-container {
   position: sticky;
   top: 0;
-  height: 100vh;  /* Frame takes full viewport height */
+  height: 100vh;
+  width: 100vw; /* Full width */
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--lighter-beige); /* Seamless background with the rest */
 }
 
 #animation-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--lighter-beige);
 }
 
 #animation-container img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* Ensures the animation fills the screen while maintaining aspect ratio */
 }
 
 .skip-animation {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 15px;
+  right: 15px;
   padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
-  color: white;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: var(--beige);
   text-decoration: none;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
   z-index: 1000;
+  transition: background-color 0.2s ease;
   cursor: pointer;
 }
 
 .skip-animation:hover {
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .content {
-  background-color: rgba(26, 26, 26, 0.8);
-  padding: 2rem;
-  margin: 2rem 0;
-  border-radius: 10px;
-  border: 2
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2.5rem;
+  margin: 3rem 0;
+  border-radius: 12px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .intro-section,
 .highlight-section,
-.innovation-section,
-.content {
-  margin: 4rem 0; /* Increased margin for more vertical space between sections */
-  padding: 3rem;  /* Increased padding for more content space */
+.innovation-section {
+  padding: 4rem 0;
+}
+
+.cta-button, .secondary-button {
+  background-color: var(--accent);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover, .secondary-button:hover {
+  background-color: lighten(var(--accent), 10%);
+}
+
+.cta-button:active, .secondary-button:active {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+footer h2 {
+  font-size: 1.8rem;
+  color: var(--black);
+  margin-bottom: 1rem;
+}
+
+footer button {
+  font-size: 1.2rem;
+  padding: 1rem 2.5rem;
+  background-color: var(--sky-blue); /* Lighter and fresher button */
+  color: var(--black);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+footer button:hover {
+  background-color: lighten(var(--sky-blue), 10%);
 }

@@ -5,37 +5,40 @@ const frames = [];
 // Preload images
 for (let i = startFrame; i <= totalFrames; i++) {
   const img = new Image();
-  img.src = `Outputs/${String(i).padStart(4, '0')}.png`;
+  img.src = `3D animation/${String(i).padStart(4, '0')}.png`;
   frames.push(img);
 }
 
 // Set up scroll-based animation
 const scrollContainer = document.querySelector('.scroll-container');
 const animationContainer = document.getElementById('animation-container');
+const skipButton = document.getElementById('skip-animation');
 
-// Function to display frame based on scroll progress
 function displayFrameByScroll(scrollProgress) { 
-  // Calculate the current frame based on scroll progress
-  let currentFrame = Math.min(Math.floor(scrollProgress * (totalFrames - startFrame + 1)), totalFrames - startFrame);
+  // Calculate the current frame based on scroll progress (scrollProgress being a float between 0 and 1)
+  let currentFrame = Math.min(Math.floor(scrollProgress * (totalFrames - startFrame + 1)), totalFrames - startFrame); 
   
-  // Clear the previous frame and display the new one
+  // Clear the previous frame and display the new one (keep only the button)
   animationContainer.innerHTML = '<a href="#" id="skip-animation" class="skip-animation">Skip the Animation</a>'; 
   animationContainer.appendChild(frames[currentFrame]);  // Show the current frame
 }
 
-// DOM fully loaded
+// When DOM fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Initially display the first frame
   animationContainer.appendChild(frames[0]);
 
   // Smooth scroll to the bottom when "Skip the Animation" is clicked
   skipButton.addEventListener('click', (e) => {
+    console.log('clicked')
+    console.log('before click', document.body.scrollHeight)
     e.preventDefault();
     const totalScrollHeight = document.body.scrollHeight;
     window.scrollTo({
       top: totalScrollHeight,
       behavior: 'smooth'  // Enable smooth scrolling to the bottom
     });
+    console.log('after scroll', document.body.scrollHeight)
   });
 });
 
